@@ -1,0 +1,20 @@
+[project]
+name = "fastapi-assignment-middle"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "meoyoug",email = "eodyd426@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard] (>=0.115.11,<0.116.0)",
+    "black (>=25.1.0,<26.0.0)",
+    "ruff (>=0.9.10,<0.10.0)",
+    "mypy (==1.13.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
