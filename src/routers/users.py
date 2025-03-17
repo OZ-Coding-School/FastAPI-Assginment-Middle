@@ -10,8 +10,6 @@ from src.utils.jwt import create_access_token
 
 user_router = APIRouter(prefix='/users', tags=["users"])
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 
 @user_router.post('')
 async def create_user(data: UserCreateRequest):
@@ -36,10 +34,7 @@ async def login_user(data: UserLoginRequest):
 			detail="Incorrect username or password",
 			headers={"WWW-Authenticate": "Bearer"},
 		)
-	access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-	access_token = create_access_token(
-		data={"sub": user.username}, expires_delta=access_token_expires
-	)
+	access_token = create_access_token(data={"sub": user.username})
 	return UserLoginResponse(id=user.id, access_token=Token(access_token=access_token, token_type="bearer"))
 
 
