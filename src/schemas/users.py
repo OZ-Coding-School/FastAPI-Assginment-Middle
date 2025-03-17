@@ -10,12 +10,14 @@ class GenderEnum(str, Enum):
 
 class UserCreateRequest(BaseModel):
     username: str
+    password: str
     age: int
     gender: GenderEnum
 
 
 class UserUpdateRequest(BaseModel):
     username: str | None = None
+    password: str | None = None
     age: int | None = None
 
 
@@ -25,3 +27,19 @@ class UserSearchParams(BaseModel):
     username: str | None = None
     age: conint(gt=0) | None = None
     gender: GenderEnum | None = None
+
+
+class UserLoginRequest(BaseModel):
+    username: str
+    password: str
+    
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class UserLoginResponse(BaseModel):
+    id: int
+    access_token: Token
+
