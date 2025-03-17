@@ -29,17 +29,6 @@ class UserSearchParams(BaseModel):
     gender: GenderEnum | None = None
 
 
-class UserLoginRequest(BaseModel):
-    username: str
-    password: str
-    
-
 class Token(BaseModel):
     access_token: str
     token_type: str
-
-
-class UserLoginResponse(BaseModel):
-    id: int
-    access_token: Token
-

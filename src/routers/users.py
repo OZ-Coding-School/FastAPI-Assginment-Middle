@@ -1,12 +1,11 @@
-from datetime import timedelta
 from typing import Annotated
 
-from fastapi import Path, HTTPException, Query, APIRouter, status
+from fastapi import HTTPException, Query, APIRouter, status, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 
 from src.models.users import UserModel
-from src.schemas.users import UserUpdateRequest, UserCreateRequest, UserSearchParams, UserLoginRequest, \
-	UserLoginResponse, Token
-from src.utils.jwt import create_access_token
+from src.schemas.users import UserUpdateRequest, UserCreateRequest, UserSearchParams, Token
+from src.utils.jwt import create_access_token, get_current_user
 
 user_router = APIRouter(prefix='/users', tags=["users"])
 
@@ -25,8 +24,8 @@ async def get_all_users():
 	return result
 
 
-@user_router.post('/login', response_model=UserLoginResponse)
-async def login_user(data: UserLoginRequest):
+@user_router.post('/login', response_model=Token)
+async def login_user(data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 	user = UserModel.authenticate(data.username, data.password)
 	if not user:
 		raise HTTPException(
@@ -34,8 +33,8 @@ async def login_user(data: UserLoginRequest):
 			detail="Incorrect username or password",
 			headers={"WWW-Authenticate": "Bearer"},
 		)
-	access_token = create_access_token(data={"sub": user.username})
-	return UserLoginResponse(id=user.id, access_token=Token(access_token=access_token, token_type="bearer"))
+	access_token = create_access_token(data={"user_id": user.id})
+	return Token(access_token=access_token, token_type="bearer")
 
 
 @user_router.get('/search')
@@ -47,28 +46,23 @@ async def search_users(query_params: Annotated[UserSearchParams, Query()]):
 	return filtered_users
 
 
-@user_router.get('/{user_id}')
-async def get_user(user_id: int = Path(gt=0)):
-	user = UserModel.get(id=user_id)
-	if user is None:
-		raise HTTPException(status_code=404)
+@user_router.get('/me')
+async def get_user(user: Annotated[UserModel, Depends(get_current_user)]):
 	return user
 
 
-@user_router.patch('/{user_id}')
-async def update_user(data: UserUpdateRequest, user_id: int = Path(gt=0)):
-	user = UserModel.get(id=user_id)
+@user_router.patch('/me')
+async def update_user(
+	user: Annotated[UserModel, Depends(get_current_user)],
+	data: UserUpdateRequest,
+):
 	if user is None:
 		raise HTTPException(status_code=404)
 	user.update(**data.model_dump())
 	return user
 
 
-@user_router.delete('/{user_id}')
-async def delete_user(user_id: int = Path(gt=0)):
-	user = UserModel.get(id=user_id)
-	if user is None:
-		raise HTTPException(status_code=404)
+@user_router.delete('/me')
+async def delete_user(user: Annotated[UserModel, Depends(get_current_user)],):
 	user.delete()
-	
-	return {'detail': f'User: {user_id}, Successfully Deleted.'}
+	return {'detail': 'Successfully Deleted.'}
