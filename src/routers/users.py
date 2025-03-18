@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import HTTPException, Query, APIRouter, status, Depends
@@ -34,6 +35,7 @@ async def login_user(data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 			headers={"WWW-Authenticate": "Bearer"},
 		)
 	access_token = create_access_token(data={"user_id": user.id})
+	user.update(last_login=datetime.now())
 	return Token(access_token=access_token, token_type="bearer")
 
 
