@@ -29,6 +29,13 @@ class UserSearchParams(BaseModel):
     gender: GenderEnum | None = None
 
 
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    age: int
+    gender: GenderEnum
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
