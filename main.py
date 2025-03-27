@@ -2,6 +2,8 @@ from fastapi import FastAPI
 
 from src.configs.database import initialize_tortoise
 from src.routers.movies import movie_router
+from src.routers.likes import like_router
+from src.routers.reviews import review_router
 from src.routers.users import user_router
 
 app = FastAPI()
@@ -9,6 +11,8 @@ app = FastAPI()
 
 app.include_router(user_router)
 app.include_router(movie_router)
+app.include_router(review_router)
+app.include_router(like_router)
 
 initialize_tortoise(app=app)
 
