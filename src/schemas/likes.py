@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class ReviewLikeResponse(BaseModel):
-	id: int
+	id: int | None = None
 	user_id: int
 	review_id: int
 	is_liked: bool
@@ -11,3 +11,9 @@ class ReviewLikeResponse(BaseModel):
 class ReviewLikeCountResponse(BaseModel):
 	review_id: int
 	like_count: int
+
+
+class ReviewIsLikedResponse(ReviewLikeResponse):
+	review_id: int
+	user_id: int
+	is_liked: bool

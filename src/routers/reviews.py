@@ -13,7 +13,7 @@ from src.utils.file import upload_file, delete_file
 review_router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
-@review_router.post("")
+@review_router.post("", status_code=201)
 async def create_movie_review(
 	user: Annotated[User, Depends(get_current_user)],
 	movie_id: int = Form(),
