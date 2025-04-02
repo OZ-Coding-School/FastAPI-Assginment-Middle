@@ -8,7 +8,7 @@ TORTOISE_APP_MODELS = [
     "src.models.users",
     "src.models.movies",
     "src.models.reviews",
-    "src.models.reviews",
+    "src.models.likes",
     "aerich.models",
 ]
 
