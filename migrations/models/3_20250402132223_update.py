@@ -3,7 +3,7 @@ from tortoise import BaseDBAsyncClient
 
 async def upgrade(db: BaseDBAsyncClient) -> str:
     return """
-        CREATE TABLE IF NOT EXISTS `following` (
+        CREATE TABLE IF NOT EXISTS `follow` (
     `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `created_at` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6),
     `is_following` BOOL NOT NULL  DEFAULT 1,
@@ -18,4 +18,4 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
 
 async def downgrade(db: BaseDBAsyncClient) -> str:
     return """
-        DROP TABLE IF EXISTS `following`;"""
+        DROP TABLE IF EXISTS `follow`;"""
