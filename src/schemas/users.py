@@ -42,7 +42,7 @@ class Token(BaseModel):
     token_type: str
 
 
-class FollowingResponse(BaseModel):
+class FollowResponse(BaseModel):
     follower_id: int
     following_id: int
     is_following: int

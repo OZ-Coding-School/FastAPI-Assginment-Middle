@@ -7,7 +7,7 @@ from tortoise.expressions import Subquery
 
 from src.models.users import User, Follow
 from src.schemas.users import UserUpdateRequest, UserCreateRequest, UserSearchParams, Token, UserResponse, \
-	FollowingResponse, FollowingUserResponse, FollowerUserResponse
+	FollowResponse, FollowingUserResponse, FollowerUserResponse
 from src.utils.auth import authenticate, get_current_user, hash_password
 from src.utils.file import validate_image_extension, delete_file, upload_file
 from src.utils.jwt import create_access_token
@@ -106,14 +106,14 @@ async def register_profile_image(image: UploadFile, user: Annotated[User, Depend
 async def following_user(
 	user: Annotated[User, Depends(get_current_user)],
 	user_id: int = Path(gt=0)
-) -> FollowingResponse:
+) -> FollowResponse:
 	follow, _ = await Follow.get_or_create(follower_id=user.id, following_id=user_id)
 	
 	if not follow.is_following:
 		follow.is_following = True
 		await follow.save()
 	
-	return FollowingResponse(
+	return FollowResponse(
 		follower_id=follow.follower_id,
 		following_id=follow.following_id,
 		is_following=follow.is_following
@@ -124,11 +124,11 @@ async def following_user(
 async def unfollowing_user(
 	user: Annotated[User, Depends(get_current_user)],
 	user_id: int = Path(gt=0)
-) -> FollowingResponse:
+) -> FollowResponse:
 	follow = await Follow.filter(follower_id=user.id, following_id=user_id).first()
 	
 	if not follow:
-		FollowingResponse(
+		FollowResponse(
 			follower_id=user.id,
 			following_id=user_id,
 			is_following=False
@@ -138,7 +138,7 @@ async def unfollowing_user(
 		follow.is_following = False
 		await follow.save()
 		
-	return FollowingResponse(
+	return FollowResponse(
 		follower_id=follow.follower_id,
 		following_id=follow.following_id, 
 		is_following=follow.is_following
