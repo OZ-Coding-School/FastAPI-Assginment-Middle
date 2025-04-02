@@ -1,9 +1,10 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Form, UploadFile, File, Depends, Path, HTTPException
+from tortoise.expressions import Subquery
 
 from src.models.reviews import Review
-from src.models.users import User
+from src.models.users import User, Follow
 from src.routers.movies import movie_router
 from src.routers.users import user_router
 from src.schemas.reviews import ReviewResponse
@@ -36,6 +37,27 @@ async def create_movie_review(
 		content=review.content,
 		review_image_url=review.review_image_url,
 	)
+
+
+@review_router.get("/following")
+async def get_following_reviews(user: Annotated[User, Depends(get_current_user)]) -> list[ReviewResponse]:
+	"""
+	팔로잉 중인 사람들의 리뷰를 최신순으로 가져옵니다.
+	"""
+	following_user_reviews = await Review.filter(
+		user_id__in=Subquery(Follow.filter(follower_id=user.id, is_following=True).values("following_id"))
+	).order_by("-created_at").all()
+	
+	return [
+		ReviewResponse(
+			id=review.id,
+			user_id=review.user_id,
+			movie_id=review.movie_id,
+			title=review.title,
+			content=review.content,
+			review_image_url=review.review_image_url
+		) for review in following_user_reviews
+	]
 
 
 @review_router.get("/{review_id}")
