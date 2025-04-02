@@ -1,11 +1,13 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import HTTPException, Query, APIRouter, status, Depends, UploadFile
+from fastapi import HTTPException, Query, APIRouter, status, Depends, UploadFile, Path
 from fastapi.security import OAuth2PasswordRequestForm
+from tortoise.expressions import Subquery
 
-from src.models.users import User
-from src.schemas.users import UserUpdateRequest, UserCreateRequest, UserSearchParams, Token, UserResponse
+from src.models.users import User, Follow
+from src.schemas.users import UserUpdateRequest, UserCreateRequest, UserSearchParams, Token, UserResponse, \
+	FollowingResponse, FollowingUserResponse, FollowerUserResponse
 from src.utils.auth import authenticate, get_current_user, hash_password
 from src.utils.file import validate_image_extension, delete_file, upload_file
 from src.utils.jwt import create_access_token
@@ -98,3 +100,76 @@ async def register_profile_image(image: UploadFile, user: Annotated[User, Depend
 		)
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+
+@user_router.post("/{user_id}/follow", status_code=200)
+async def following_user(
+	user: Annotated[User, Depends(get_current_user)],
+	user_id: int = Path(gt=0)
+) -> FollowingResponse:
+	follow, _ = await Follow.get_or_create(follower_id=user.id, following_id=user_id)
+	
+	if not follow.is_following:
+		follow.is_following = True
+		await follow.save()
+	
+	return FollowingResponse(
+		follower_id=follow.follower_id,
+		following_id=follow.following_id,
+		is_following=follow.is_following
+	)
+
+
+@user_router.post("/{user_id}/unfollow", status_code=200)
+async def unfollowing_user(
+	user: Annotated[User, Depends(get_current_user)],
+	user_id: int = Path(gt=0)
+) -> FollowingResponse:
+	follow = await Follow.filter(follower_id=user.id, following_id=user_id).first()
+	
+	if not follow:
+		FollowingResponse(
+			follower_id=user.id,
+			following_id=user_id,
+			is_following=False
+		)
+	
+	if follow.is_following:
+		follow.is_following = False
+		await follow.save()
+		
+	return FollowingResponse(
+		follower_id=follow.follower_id,
+		following_id=follow.following_id, 
+		is_following=follow.is_following
+	)
+
+
+@user_router.get("/me/followings", status_code=200)
+async def get_my_followings(user: Annotated[User, Depends(get_current_user)]) -> list[FollowingUserResponse]:
+	following_users = await User.filter(
+		id__in=Subquery(Follow.filter(follower_id=user.id, is_following=True).values("following_id"))
+	).all()
+	
+	return [
+		FollowingUserResponse(
+			following_id=user.id,
+			username=user.username,
+			profile_image_url=user.profile_image_url
+		) for user in following_users
+	]
+
+
+@user_router.get("/me/followers", status_code=200)
+async def get_my_followers(user: Annotated[User, Depends(get_current_user)]) -> list[FollowerUserResponse]:
+	following_users = await User.filter(
+		id__in=Subquery(Follow.filter(following_id=user.id, is_following=True).values("following_id"))
+	).all()
+	
+	return [
+		FollowerUserResponse(
+			follower_id=user.id,
+			username=user.username,
+			profile_image_url=user.profile_image_url
+		) for user in following_users
+	]
