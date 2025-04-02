@@ -20,3 +20,13 @@ class User(BaseModel, Model):
 
     class Meta:
         table = 'users'
+
+
+class Follow(BaseModel, Model):
+    follower = fields.ForeignKeyField('models.User', related_name='followers')
+    following = fields.ForeignKeyField('models.User', related_name='following')
+    is_following = fields.BooleanField(default=True)
+    
+    class Meta:
+        table = 'following'
+        unique_together = (('follower', 'following'),)
