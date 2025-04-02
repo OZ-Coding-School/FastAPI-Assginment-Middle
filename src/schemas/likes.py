@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from src.models.likes import ReactionTypeEnum
+
 
 class ReviewLikeResponse(BaseModel):
 	id: int | None = None
@@ -17,3 +19,10 @@ class ReviewIsLikedResponse(ReviewLikeResponse):
 	review_id: int
 	user_id: int
 	is_liked: bool
+
+
+class MovieReactionResponse(BaseModel):
+	id: int
+	user_id: int
+	movie_id: int
+	type: ReactionTypeEnum
