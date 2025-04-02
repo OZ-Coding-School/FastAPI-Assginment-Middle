@@ -13,7 +13,7 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
     CONSTRAINT `fk_movie_re_movies_68679e90` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_movie_re_users_ce8163a3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) CHARACTER SET utf8mb4;
-        CREATE TABLE IF NOT EXISTS `follow` (
+        CREATE TABLE IF NOT EXISTS `follows` (
     `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `created_at` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6),
     `is_following` BOOL NOT NULL  DEFAULT 1,
@@ -27,4 +27,4 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
 
 async def downgrade(db: BaseDBAsyncClient) -> str:
     return """DROP TABLE IF EXISTS `movie_reactions`;
-    DROP TABLE IF EXISTS `follow`;"""
+    DROP TABLE IF EXISTS `follows`;"""
