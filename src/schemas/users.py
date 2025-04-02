@@ -40,3 +40,21 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class FollowingResponse(BaseModel):
+    follower_id: int
+    following_id: int
+    is_following: int
+
+
+class FollowingUserResponse(BaseModel):
+    following_id: int
+    username: str
+    profile_image_url: str | None = None
+
+
+class FollowerUserResponse(BaseModel):
+    follower_id: int
+    username: str
+    profile_image_url: str | None = None
