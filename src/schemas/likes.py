@@ -26,3 +26,9 @@ class MovieReactionResponse(BaseModel):
 	user_id: int
 	movie_id: int
 	type: ReactionTypeEnum
+
+
+class MovieReactionCountResponse(BaseModel):
+	movie_id: int
+	like_count: int
+	dislike_count: int

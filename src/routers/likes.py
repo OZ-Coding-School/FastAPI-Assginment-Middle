@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, Path
 
 from src.models.likes import ReviewLike, MovieReaction, ReactionTypeEnum
 from src.models.users import User
+from src.routers.movies import movie_router
 from src.routers.reviews import review_router
-from src.schemas.likes import ReviewLikeResponse, ReviewLikeCountResponse, ReviewIsLikedResponse, MovieReactionResponse
+from src.schemas.likes import ReviewLikeResponse, ReviewLikeCountResponse, ReviewIsLikedResponse, MovieReactionResponse, \
+	MovieReactionCountResponse
 from src.utils.auth import get_current_user
 
 like_router = APIRouter(prefix="/likes", tags=["likes"])
@@ -110,3 +112,11 @@ async def dislike_movie(
 		movie_id=reaction.movie_id,
 		type=reaction.type
 	)
+
+
+@movie_router.get("/{movie_id}/reaction_count", status_code=200)
+async def get_movie_reaction_count(movie_id: int = Path(gt=0)) -> MovieReactionCountResponse:
+	like_count = await MovieReaction.filter(movie_id=movie_id, type=ReactionTypeEnum.LIKE).count()
+	dislike_count = await MovieReaction.filter(movie_id=movie_id, type=ReactionTypeEnum.DISLIKE).count()
+	
+	return MovieReactionCountResponse(movie_id=movie_id, like_count=like_count, dislike_count=dislike_count)
