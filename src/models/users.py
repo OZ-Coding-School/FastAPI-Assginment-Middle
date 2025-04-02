@@ -28,5 +28,5 @@ class Follow(BaseModel, Model):
     is_following = fields.BooleanField(default=True)
     
     class Meta:
-        table = 'following'
+        table = 'follow'
         unique_together = (('follower', 'following'),)
