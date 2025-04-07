@@ -128,7 +128,7 @@ async def unfollowing_user(
 	follow = await Follow.filter(follower_id=user.id, following_id=user_id).first()
 	
 	if not follow:
-		FollowResponse(
+		return FollowResponse(
 			follower_id=user.id,
 			following_id=user_id,
 			is_following=False
